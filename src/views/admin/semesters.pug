@@ -1,0 +1,49 @@
+extends ../layout
+
+block content
+  h1 Semester Management
+
+  h2 Create New Semester
+  form(method="POST", action="/admin/semesters")
+    .form-group
+      label(for="programme_id") Programme
+      select(name="programme_id" id="programme_id" required)
+        each prog in programmes
+          option(value=prog.programme_id) #{prog.programme_name}
+    .form-group
+      label(for="semester_number") Semester Number
+      input(type="number", name="semester_number", id="semester_number", placeholder="Enter semester number" required)
+    .form-group
+      label(for="academic_year") Academic Year
+      input(type="text", name="academic_year", id="academic_year", placeholder="e.g., 2025-2026" required)
+    .form-group
+      label(for="start_date") Start Date
+      input(type="date", name="start_date", id="start_date" required)
+    .form-group
+      label(for="end_date") End Date
+      input(type="date", name="end_date", id="end_date" required)
+    button(type="submit") Create Semester
+
+  h2 Existing Semesters
+  if semesters && semesters.length
+    table
+      thead
+        tr
+          th Programme
+          th Semester Number
+          th Academic Year
+          th Start Date
+          th End Date
+      tbody
+        each sem in semesters
+          tr
+            td #{sem.programme_name}
+            td #{sem.semester_number}
+            td #{sem.academic_year}
+            td #{sem.start_date}
+            td #{sem.end_date}
+  else
+    p No semesters found.
+
+  nav
+    a(href="/admin") Back to Dashboard

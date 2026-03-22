@@ -1,0 +1,21 @@
+extends ../layout
+
+block content
+  h1 Reports
+
+  h2 Generate Class Result Sheet
+  form(action="/admin/reports/export", method="GET")
+    .form-group
+      label(for="semester_id") Semester
+      select(name="semester_id" id="semester_id" required)
+        each sem in semesters
+          option(value=sem.semester_id) #{sem.academic_year} - Sem #{sem.semester_number}
+    .form-group
+      label(for="subject_id") Subject
+      select(name="subject_id" id="subject_id" required)
+        each sub in subjects
+          option(value=sub.subject_id) #{sub.subject_name}
+    button(type="submit") Export to CSV
+
+  nav
+    a(href="/admin") Back to Dashboard

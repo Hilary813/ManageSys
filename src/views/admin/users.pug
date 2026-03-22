@@ -1,0 +1,45 @@
+extends ../layout
+
+block content
+  h1 User Management
+
+  h2 Create New User
+  form(method="POST", action="/admin/users")
+    .form-group
+      label(for="username") Username
+      input(type="text", name="username", id="username", placeholder="Enter username" required)
+    .form-group
+      label(for="email") Email
+      input(type="email", name="email", id="email", placeholder="Enter email" required)
+    .form-group
+      label(for="password") Password
+      input(type="password", name="password", id="password", placeholder="Enter password" required)
+    .form-group
+      label(for="role") Role
+      select(name="role" id="role" required)
+        option(value="ADMIN") Administrator
+        option(value="FACULTY") Faculty
+        option(value="STUDENT") Student
+    button(type="submit") Create User
+
+  h2 Existing Users
+  if users && users.length
+    table
+      thead
+        tr
+          th Username
+          th Email
+          th Role
+          th Active
+      tbody
+        each usr in users
+          tr
+            td #{usr.username}
+            td #{usr.email}
+            td #{usr.role}
+            td #{usr.is_active ? 'Yes' : 'No'}
+  else
+    p No users found.
+
+  nav
+    a(href="/admin") Back to Dashboard

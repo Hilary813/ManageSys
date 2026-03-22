@@ -1,0 +1,14 @@
+extends ../layout
+
+block content
+  h1 GPA Trends
+
+  if gpas && gpas.length
+    ul.mb-3
+      each gpa in gpas
+        li #{gpa.academic_year} Semester #{gpa.semester_number}: #{gpa.gpa ? gpa.gpa.toFixed(2) : 'N/A'}
+  else
+    p No GPA data available.
+
+  nav
+    a(href="/student") Back to Dashboard

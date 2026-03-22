@@ -1,0 +1,52 @@
+extends ../layout
+
+block content
+  h1 Student Management
+
+  h2 Register New Student
+  form(method="POST", action="/admin/students")
+    .form-group
+      label(for="username") Username
+      input(type="text", name="username", id="username", placeholder="Enter username" required)
+    .form-group
+      label(for="email") Email
+      input(type="email", name="email", id="email", placeholder="Enter email" required)
+    .form-group
+      label(for="password") Password
+      input(type="password", name="password", id="password", placeholder="Enter password" required)
+    .form-group
+      label(for="registration_number") Registration Number
+      input(type="text", name="registration_number", id="registration_number", placeholder="Enter registration number" required)
+    .form-group
+      label(for="programme_id") Programme
+      select(name="programme_id" id="programme_id" required)
+        each prog in programmes
+          option(value=prog.programme_id) #{prog.programme_name}
+    .form-group
+      label(for="enrollment_year") Enrollment Year
+      input(type="number", name="enrollment_year", id="enrollment_year", placeholder="Enter enrollment year" required)
+    button(type="submit") Register Student
+
+  h2 Existing Students
+  if students && students.length
+    table
+      thead
+        tr
+          th Username
+          th Email
+          th Registration Number
+          th Programme
+          th Enrollment Year
+      tbody
+        each student in students
+          tr
+            td #{student.username}
+            td #{student.email}
+            td #{student.registration_number}
+            td #{student.programme_name}
+            td #{student.enrollment_year}
+  else
+    p No students found.
+
+  nav
+    a(href="/admin") Back to Dashboard

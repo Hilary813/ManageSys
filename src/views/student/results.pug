@@ -1,0 +1,29 @@
+extends ../layout
+
+block content
+  h1 Semester Results
+
+  table
+    thead
+      tr
+        th Subject Code
+        th Subject Name
+        th Marks
+        th Max Marks
+        th Grade
+        th Credits
+    tbody
+      each res in results
+        tr
+          td #{res.subject_code}
+          td #{res.subject_name}
+          td #{res.marks}
+          td #{res.max_marks}
+          td #{res.grade_letter}
+          td #{res.credit_hours}
+
+  .card.mt-3
+    h3 Semester GPA: #{semesterGPA.toFixed(2)}
+
+  nav
+    a(href="/student") Back to Dashboard

@@ -1,0 +1,45 @@
+extends ../layout
+
+block content
+  h1 Result Management
+
+  h2 Publish Results for Semester
+  form(method="POST", action="/admin/results/publish")
+    .form-group
+      label(for="semester_id") Semester
+      select(name="semester_id" id="semester_id" required)
+        each sem in semesters
+          option(value=sem.semester_id) #{sem.academic_year} - Sem #{sem.semester_number}
+    button(type="submit") Publish Results
+
+  h2 Existing Results
+  if results && results.length
+    table
+      thead
+        tr
+          th Student
+          th Subject
+          th Semester
+          th Marks
+          th Grade
+          th Status
+          th Action
+      tbody
+        each res in results
+          tr
+            td #{res.registration_number}
+            td #{res.subject_name}
+            td #{res.academic_year} - Sem #{res.semester_number}
+            td #{res.marks}
+            td #{res.grade_letter}
+            td #{res.result_status}
+            td
+              if res.result_status === 'PUBLISHED'
+                form(method="POST", action="/admin/results/withhold" style="display:inline")
+                  input(type="hidden", name="result_id", value=res.result_id)
+                  button(type="submit" class="danger") Withhold
+  else
+    p No results found.
+
+  nav
+    a(href="/admin") Back to Dashboard

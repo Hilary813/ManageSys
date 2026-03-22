@@ -1,0 +1,18 @@
+extends layout
+
+block content
+  .text-center.mb-3
+    h1 Login to SRMS
+    p Please enter your credentials to access the system.
+  .login-form
+    form(method="POST", action="/login").text-center
+      .form-group
+        label(for="username") Username
+        input(type="text", name="username", id="username", placeholder="Enter your username" required)
+      .form-group
+        label(for="password") Password
+        input(type="password", name="password", id="password", placeholder="Enter your password" required)
+      button(type="submit") Login
+
+  .text-center.mt-2
+    p Forgot your password? Contact administrator.

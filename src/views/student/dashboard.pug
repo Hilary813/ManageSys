@@ -1,0 +1,34 @@
+extends ../layout
+
+block content
+  h1 Student Dashboard
+  p Welcome, #{user.username}
+  p Programme: #{student.programme_name} | Registration: #{student.registration_number}
+
+  h2 Published Results
+  if results && results.length
+    table
+      thead
+        tr
+          th Semester
+          th Subject
+          th Marks
+          th Grade
+          th GPA
+      tbody
+        each res in results
+          tr
+            td #{res.academic_year} - Sem #{res.semester_number}
+            td #{res.subject_name}
+            td #{res.marks}
+            td #{res.grade_letter}
+            td #{res.grade_point}
+  else
+    p No results published yet.
+
+  nav
+    a(href="/student/gpa").btn View GPA Trends
+    a(href="/student/transcript").btn Download Transcript
+
+  .text-center.mt-3
+    a(href="/logout").btn Logout

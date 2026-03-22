@@ -1,0 +1,20 @@
+extends ../layout
+
+block content
+  h1 Class Performance Analysis
+
+  .card.mb-3
+    h3 Performance Summary
+    p Average Score: #{stats.average ? stats.average.toFixed(2) : 'N/A'}
+    p Total Students: #{stats.total}
+
+  h3 Grade Distribution
+  ul
+    li A (85+): #{stats.a_count || 0}
+    li B (70-84): #{stats.b_count || 0}
+    li C (55-69): #{stats.c_count || 0}
+    li D (40-54): #{stats.d_count || 0}
+    li F (<40): #{stats.f_count || 0}
+
+  nav
+    a(href="/faculty") Back to Dashboard

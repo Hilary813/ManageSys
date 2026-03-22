@@ -1,0 +1,52 @@
+extends ../layout
+
+block content
+  h1 Welcome, #{user.username}
+  p Manage the Student Result Management System efficiently.
+
+  .stats
+    .card
+      h3 #{stats.totalStudents}
+      p Total Students
+    .card
+      h3 #{stats.totalSubjects}
+      p Total Subjects
+    .card
+      h3 #{stats.activeSemesters}
+      p Active Semesters
+    .card
+      h3 #{stats.pendingSubmissions}
+      p Pending Submissions
+
+  h2 Current Examination Sessions
+  if sessions && sessions.length
+    table
+      thead
+        tr
+          th Semester
+          th Programme
+          th Subjects
+          th Submitted
+          th Status
+      tbody
+        each session in sessions
+          tr
+            td #{session.academic_year} - Sem #{session.semester_number}
+            td #{session.programme_name}
+            td #{session.subjects}
+            td #{session.submitted}
+            td #{session.submitted === session.subjects ? 'Complete' : 'Pending'}
+  else
+    p No examination sessions found.
+
+  nav
+    a(href="/admin/students") Manage Students
+    a(href="/admin/subjects") Manage Subjects
+    a(href="/admin/semesters") Manage Semesters
+    a(href="/admin/enrollments") Manage Enrollments
+    a(href="/admin/results") Manage Results
+    a(href="/admin/reports") Generate Reports
+    a(href="/admin/users") Manage Users
+
+  .text-center.mt-3
+    a(href="/logout").btn Logout

@@ -1,0 +1,42 @@
+extends ../layout
+
+block content
+  h1 Subject Management
+
+  h2 Create New Subject
+  form(method="POST", action="/admin/subjects")
+    .form-group
+      label(for="subject_code") Subject Code
+      input(type="text", name="subject_code", id="subject_code", placeholder="Enter subject code" required)
+    .form-group
+      label(for="subject_name") Subject Name
+      input(type="text", name="subject_name", id="subject_name", placeholder="Enter subject name" required)
+    .form-group
+      label(for="credit_hours") Credit Hours
+      input(type="number", name="credit_hours", id="credit_hours", placeholder="Enter credit hours" required)
+    .form-group
+      label(for="max_marks") Max Marks
+      input(type="number", name="max_marks", id="max_marks", placeholder="Enter max marks" required)
+    button(type="submit") Create Subject
+
+  h2 Existing Subjects
+  if subjects && subjects.length
+    table
+      thead
+        tr
+          th Code
+          th Name
+          th Credits
+          th Max Marks
+      tbody
+        each sub in subjects
+          tr
+            td #{sub.subject_code}
+            td #{sub.subject_name}
+            td #{sub.credit_hours}
+            td #{sub.max_marks}
+  else
+    p No subjects found.
+
+  nav
+    a(href="/admin") Back to Dashboard

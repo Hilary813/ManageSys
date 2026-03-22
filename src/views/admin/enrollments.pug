@@ -1,0 +1,43 @@
+extends ../layout
+
+block content
+  h1 Student Enrollments
+
+  h2 Enroll Student in Subject
+  form(method="POST", action="/admin/enrollments")
+    .form-group
+      label(for="student_id") Student
+      select(name="student_id" id="student_id" required)
+        each stud in students
+          option(value=stud.student_id) #{stud.registration_number} - #{stud.username}
+    .form-group
+      label(for="subject_id") Subject
+      select(name="subject_id" id="subject_id" required)
+        each sub in subjects
+          option(value=sub.subject_id) #{sub.subject_name}
+    .form-group
+      label(for="semester_id") Semester
+      select(name="semester_id" id="semester_id" required)
+        each sem in semesters
+          option(value=sem.semester_id) #{sem.academic_year} - Sem #{sem.semester_number}
+    button(type="submit") Enroll Student
+
+  h2 Existing Enrollments
+  if enrollments && enrollments.length
+    table
+      thead
+        tr
+          th Student
+          th Subject
+          th Semester
+      tbody
+        each enr in enrollments
+          tr
+            td #{enr.registration_number}
+            td #{enr.subject_name}
+            td #{enr.academic_year} - Sem #{enr.semester_number}
+  else
+    p No enrollments found.
+
+  nav
+    a(href="/admin") Back to Dashboard

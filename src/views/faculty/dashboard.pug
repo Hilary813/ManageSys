@@ -1,0 +1,31 @@
+extends ../layout
+
+block content
+  h1 Faculty Dashboard
+  p Welcome, #{user.username}. Manage your assigned subjects and enter results.
+
+  h2 Assigned Subjects
+  if subjects && subjects.length
+    table
+      thead
+        tr
+          th Subject
+          th Semester
+          th End Date
+          th Progress
+          th Actions
+      tbody
+        each sub in subjects
+          tr
+            td #{sub.subject_name}
+            td #{sub.academic_year} - Sem #{sub.semester_number}
+            td #{sub.end_date}
+            td #{sub.entered_marks} / #{sub.total_students}
+            td
+              a(href=`/faculty/result-entry/${sub.allocation_id}`).btn Enter Marks
+              a(href=`/faculty/performance/${sub.allocation_id}`).btn View Performance
+  else
+    p No subjects assigned.
+
+  .text-center.mt-3
+    a(href="/logout").btn Logout

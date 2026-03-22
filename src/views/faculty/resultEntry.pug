@@ -1,0 +1,36 @@
+extends ../layout
+
+block content
+  h1 Result Entry - #{allocation.subject_name}
+  p #{allocation.academic_year} - Semester #{allocation.semester_number} | Max Marks: #{allocation.max_marks}
+
+  h2 Import from CSV
+  form(method="POST", action=`/faculty/import-csv/${allocation.allocation_id}`, enctype="multipart/form-data")
+    .form-group
+      label(for="csvFile") CSV File
+      input(type="file", name="csvFile", id="csvFile", accept=".csv" required)
+      small Upload a CSV with columns: registration_number, marks
+    button(type="submit") Import CSV
+
+  h2 Manual Entry
+  form(method="POST", action=`/faculty/result-entry/${allocation.allocation_id}`)
+    table
+      thead
+        tr
+          th Registration Number
+          th Student Name
+          th Marks Obtained
+          th Status
+      tbody
+        each enr in enrollments
+          tr
+            td #{enr.registration_number}
+            td #{enr.username}
+            td
+              input(type="number", name=`mark_${enr.enrollment_id}`, value=enr.marks_obtained || '', min="0", max=allocation.max_marks, step="0.01" required)
+            td #{enr.entry_status || 'Not Entered'}
+    .text-center.mt-2
+      button(type="submit") Save and Submit
+
+  nav
+    a(href="/faculty") Back to Dashboard
