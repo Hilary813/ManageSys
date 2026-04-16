@@ -4,11 +4,61 @@ html(lang="en")
     meta(charset="UTF-8")
     meta(name="viewport", content="width=device-width, initial-scale=1.0")
     title SRMS - Student Result Management System
+    
+    //- Google Fonts
+    link(rel="preconnect", href="https://fonts.googleapis.com")
+    link(rel="preconnect", href="https://fonts.gstatic.com", crossorigin)
+    link(href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap", rel="stylesheet")
+    
+    //- FontAwesome
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+    
+    //- Custom CSS
     link(rel="stylesheet", href="/style.css")
+
   body
-    header
-      h1 Student Result Management System
-    main
-      block content
-    footer
-      p &copy; 2026 SRMS. All rights reserved.
+    block wrapper
+      //- Default behavior if wrapper is not overridden is to show the sidebar layout
+      .app-container
+        //- Sidebar Navigation
+        aside.sidebar#sidebar
+          .sidebar-header
+            h2 SRMS Panel
+          
+          nav.sidebar-nav
+            block sidebar-nav
+
+          .sidebar-footer
+            a.btn.btn-secondary.btn-block(href="/logout", style="color:red; border-color:red;") 
+              i.fas.fa-sign-out-alt
+              |  Logout
+              
+        //- Main Content Content
+        .main-content
+          header.top-header
+            button.menu-toggle#menu-toggle
+              i.fas.fa-bars
+            
+            .header-info
+              span.text-muted Welcome to SRMS
+              
+          main
+            block content
+            
+    //- Script for mobile menu toggle
+    script.
+      document.addEventListener('DOMContentLoaded', () => {
+        const toggleBtn = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        
+        if(toggleBtn && sidebar) {
+          toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+          });
+        }
+      });
+      
+      // Close modal function for global use
+      function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+      }

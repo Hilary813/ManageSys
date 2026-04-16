@@ -1,0 +1,125 @@
+extends ../layout
+
+block sidebar-nav
+  a.sidebar-nav-item(href="/admin") 
+    i.fas.fa-tachometer-alt
+    | Dashboard
+  a.sidebar-nav-item(href="/admin/programmes") 
+    i.fas.fa-graduation-cap
+    | Programmes
+  a.sidebar-nav-item(href="/admin/students")
+    i.fas.fa-user-graduate
+    | Students
+  a.sidebar-nav-item(href="/admin/subjects")
+    i.fas.fa-book
+    | Subjects
+  a.sidebar-nav-item(href="/admin/semesters")
+    i.fas.fa-calendar-alt
+    | Semesters
+  a.sidebar-nav-item(href="/admin/enrollments")
+    i.fas.fa-clipboard-list
+    | Enrollments
+  a.sidebar-nav-item.active(href="/admin/allocations")
+    i.fas.fa-chalkboard-teacher
+    | Faculty Allocations
+  a.sidebar-nav-item(href="/admin/results")
+    i.fas.fa-poll
+    | Results
+  a.sidebar-nav-item(href="/admin/reports")
+    i.fas.fa-chart-bar
+    | Reports
+  a.sidebar-nav-item(href="/admin/users")
+    i.fas.fa-users-cog
+    | Users
+
+block content
+  .d-flex.justify-between.items-center.mb-3
+    h1 Faculty Allocations
+    button.btn.btn-primary(onclick="document.getElementById('addModal').classList.add('show')")
+      i.fas.fa-plus-circle
+      |  Assign Faculty
+
+  .card
+    .card-header
+      h2 Subject Assignments
+      span.text-muted Manage teaching assignments across semesters
+      
+    if allocations && allocations.length
+      .table-responsive
+        table
+          thead
+            tr
+              th Faculty Member
+              th Subject
+              th Academic Term
+              th Programme
+              th Actions
+          tbody
+            each alloc in allocations
+              tr
+                td 
+                  strong.text-primary #{alloc.username}
+                  if alloc.department
+                    span.text-muted  (#{alloc.department})
+                td #{alloc.subject_name}
+                td Sem #{alloc.semester_number}
+                  div
+                    span.text-muted(style="font-size: 0.8rem;") #{alloc.academic_year}
+                td 
+                  span.badge.badge-info #{alloc.programme_name}
+                td
+                  .flex.gap-1
+                    button.btn.btn-sm.btn-danger(data-allocation-id=alloc.allocation_id, onclick="deleteAllocation(this)") 
+                      i.fas.fa-trash
+    else
+      p.text-muted.text-center.py-3 No teaching allocations found.
+
+  // Add Allocation Modal
+  #addModal.modal
+    .modal-content
+      .modal-header
+        h3 Assign Faculty to Subject
+        span.close(onclick="closeModal('addModal')") &times;
+      .modal-body
+        form(method="POST", action="/admin/allocations")
+          .form-group
+            label(for="faculty_id") Faculty Member
+            select(name="faculty_id" id="faculty_id" required)
+              option(value="" disabled selected) Select a faculty member
+              each fac in facultyList
+                option(value=fac.faculty_id) #{fac.username} #{fac.department ? '(' + fac.department + ')' : ''}
+          .form-group
+            label(for="semester_id") Target Semester & Programme
+            select(name="semester_id" id="semester_id" required)
+              option(value="" disabled selected) Select target semester
+              each sem in semesters
+                option(value=sem.semester_id) #{sem.programme_name} | Sem #{sem.semester_number} (#{sem.academic_year})
+          .form-group
+            label(for="subject_id") Assigned Subject
+            select(name="subject_id" id="subject_id" required)
+              option(value="" disabled selected) Select subject to assign
+              each sub in subjects
+                option(value=sub.subject_id) #{sub.subject_code} - #{sub.subject_name}
+          
+          .flex.justify-end.mt-3.gap-2
+            button.btn.btn-secondary(type="button", onclick="closeModal('addModal')") Cancel
+            button.btn.btn-primary(type="submit") Create Assignment
+
+  script.
+    function deleteAllocation(button) {
+      if (confirm('Are you sure you want to remove this faculty assignment?')) {
+        const allocationId = button.getAttribute('data-allocation-id');
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/admin/allocations/${allocationId}`;
+        
+        const methodInput = document.createElement('input');
+        methodInput.type = 'hidden';
+        methodInput.name = '_method';
+        methodInput.value = 'DELETE';
+        form.appendChild(methodInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+      }
+    }

@@ -1,0 +1,29 @@
+exports.bulkEnroll = async (req, res) => {
+  const { programme_id, semester_id, subject_id } = req.body;
+  try {
+    // 1. Fetch all active students in this programme
+    const [students] = await db.query(`
+      SELECT s.student_id 
+      FROM students s 
+      JOIN users u ON s.user_id = u.user_id 
+      WHERE s.programme_id = ? AND s.status = 'ACTIVE' AND u.is_active = 1
+    `, [programme_id]);
+
+    if (!students.length) {
+      return res.status(400).send("No active students found in this programme to enroll.");
+    }
+
+    // 2. Insert enrollments, ignoring duplicates (since we have a UNIQUE constraint)
+    for (const student of students) {
+      await db.query(
+        "INSERT IGNORE INTO enrollments (student_id, subject_id, semester_id) VALUES (?, ?, ?)",
+        [student.student_id, subject_id, semester_id]
+      );
+    }
+
+    res.redirect("/admin/enrollments");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server Error processing bulk enrollment.");
+  }
+};

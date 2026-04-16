@@ -1,0 +1,139 @@
+extends ../layout
+
+block sidebar-nav
+  a.sidebar-nav-item(href="/admin") 
+    i.fas.fa-home
+    | Dashboard
+  a.sidebar-nav-item.active(href="/admin/programmes") 
+    i.fas.fa-graduation-cap
+    | Programmes
+  a.sidebar-nav-item(href="/admin/users") 
+    i.fas.fa-users-cog
+    | User Management
+  a.sidebar-nav-item(href="/admin/students") 
+    i.fas.fa-user-graduate
+    | Students
+  a.sidebar-nav-item(href="/admin/subjects") 
+    i.fas.fa-book
+    | Subjects
+  a.sidebar-nav-item(href="/admin/semesters") 
+    i.fas.fa-calendar-alt
+    | Semesters
+  a.sidebar-nav-item(href="/admin/enrollments") 
+    i.fas.fa-clipboard-list
+    | Enrollments
+  a.sidebar-nav-item(href="/admin/allocations") 
+    i.fas.fa-chalkboard-teacher
+    | Allocations
+  a.sidebar-nav-item(href="/admin/results") 
+    i.fas.fa-award
+    | Results
+  a.sidebar-nav-item(href="/admin/reports") 
+    i.fas.fa-chart-pie
+    | Reports
+
+block content
+  .mb-3
+    a.btn.btn-sm.btn-secondary.mb-2(href="/admin/programmes")
+      i.fas.fa-arrow-left
+      |  Back to Programmes
+    .d-flex.items-center.gap-2
+      h1 #{programme.programme_name}
+      span.badge.badge-primary #{programme.programme_code}
+
+  // Summary Card
+  .card.mb-3(style="background: linear-gradient(135deg, var(--color-primary) 0%, #312e81 100%); color: white; border: none;")
+    .card-body(style="padding: var(--spacing-xl);")
+      .flex.justify-between.items-center(style="flex-wrap: wrap; gap: 1rem;")
+        div
+          h2(style="color: white; border: none; margin-bottom: 0.5rem; padding: 0;") Programme Overview
+          p(style="color: rgba(255,255,255,0.8); margin: 0;") Duration: #{programme.duration_years} Years
+        .flex.gap-3
+          div(style="text-align: center; background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px; min-width: 100px;")
+            p(style="margin: 0; font-size: 2rem; font-weight: bold;") #{students ? students.length : 0}
+            span(style="font-size: 0.8rem; text-transform: uppercase;") Students
+          div(style="text-align: center; background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px; min-width: 100px;")
+            p(style="margin: 0; font-size: 2rem; font-weight: bold;") #{semesters ? semesters.length : 0}
+            span(style="font-size: 0.8rem; text-transform: uppercase;") Semesters
+          div(style="text-align: center; background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px; min-width: 100px;")
+            p(style="margin: 0; font-size: 2rem; font-weight: bold;") #{subjects ? subjects.length : 0}
+            span(style="font-size: 0.8rem; text-transform: uppercase;") Subjects
+
+  // Details Grid
+  .grid-form
+    // Semesters List
+    .card
+      .card-header
+        h3 Semesters
+        span.text-muted Active terms for this programme
+      .table-responsive
+        table
+          thead
+            tr
+              th Academic Year
+              th Semester Number
+              th Period
+          tbody
+            if semesters && semesters.length
+              each sem in semesters
+                tr
+                  td 
+                    strong #{sem.academic_year}
+                  td Semester #{sem.semester_number}
+                  td.text-muted #{new Date(sem.start_date).toLocaleDateString()} - #{new Date(sem.end_date).toLocaleDateString()}
+            else
+              tr
+                td(colspan="3" class="text-center text-muted") No semesters defined yet.
+                
+    // Subjects List
+    .card
+      .card-header
+        h3 Core Subjects
+        span.text-muted Subjects allocated within this programme
+      .table-responsive
+        table
+          thead
+            tr
+              th Code
+              th Subject Name
+              th Credits
+          tbody
+            if subjects && subjects.length
+              each sub in subjects
+                tr
+                  td 
+                    strong.text-primary #{sub.subject_code}
+                  td #{sub.subject_name}
+                  td #{sub.credit_hours}
+            else
+              tr
+                td(colspan="3" class="text-center text-muted") No subjects allocated yet.
+
+  // Enrolled Students List (Full width below)
+  .card.mt-3
+    .card-header
+      h3 Enrolled Students
+      span.text-muted Directory of students in this programme
+    .table-responsive
+      table
+        thead
+          tr
+            th Registration Number
+            th Student Name
+            th Email
+            th Admission Year
+            th Status
+        tbody
+          if students && students.length
+            each student in students
+              tr
+                td 
+                  strong #{student.registration_number}
+                td #{student.username}
+                td.text-muted #{student.email}
+                td #{student.enrollment_year}
+                td
+                  span.badge.badge-success ACTIVE
+          else
+            tr
+              td(colspan="5" class="text-center text-muted py-3") No students currently enrolled.

@@ -1,0 +1,124 @@
+extends ../layout
+
+block sidebar-nav
+  a.sidebar-nav-item(href="/admin") 
+    i.fas.fa-home
+    | Dashboard
+  a.sidebar-nav-item.active(href="/admin/programmes") 
+    i.fas.fa-graduation-cap
+    | Programmes
+  a.sidebar-nav-item(href="/admin/users") 
+    i.fas.fa-users-cog
+    | User Management
+  a.sidebar-nav-item(href="/admin/students") 
+    i.fas.fa-user-graduate
+    | Students
+  a.sidebar-nav-item(href="/admin/subjects") 
+    i.fas.fa-book
+    | Subjects
+  a.sidebar-nav-item(href="/admin/semesters") 
+    i.fas.fa-calendar-alt
+    | Semesters
+  a.sidebar-nav-item(href="/admin/enrollments") 
+    i.fas.fa-clipboard-list
+    | Enrollments
+  a.sidebar-nav-item(href="/admin/allocations") 
+    i.fas.fa-chalkboard-teacher
+    | Allocations
+  a.sidebar-nav-item(href="/admin/results") 
+    i.fas.fa-award
+    | Results
+  a.sidebar-nav-item(href="/admin/reports") 
+    i.fas.fa-chart-pie
+    | Reports
+
+block content
+  .d-flex.justify-between.items-center.mb-3
+    h1 Academic Programmes
+    button.btn.btn-primary(onclick="document.getElementById('addModal').style.display='flex'")
+      i.fas.fa-plus
+      |  Add new Programme
+
+  .card
+    .table-responsive
+      table
+        thead
+          tr
+            th Code
+            th Programme Name
+            th Duration
+            th Students Enrolled
+            th Semesters
+            th Actions
+        tbody
+          each prog in programmes
+            tr
+              td 
+                strong.text-primary #{prog.programme_code}
+              td #{prog.programme_name}
+              td #{prog.duration_years} Years
+              td 
+                span.badge.badge-info #{prog.student_count || 0} Students
+              td 
+                span.badge.badge-secondary #{prog.semester_count || 0} Semesters
+              td
+                .flex.gap-1
+                  a.btn.btn-sm.btn-success(href=`/admin/programmes/${prog.programme_id}`)
+                    i.fas.fa-eye
+                    |  View Details
+                  button.btn.btn-sm.btn-secondary(onclick=`editProg(${JSON.stringify(prog)})`) 
+                    i.fas.fa-edit
+                  form(action=`/admin/programmes/${prog.programme_id}?_method=DELETE`, method="POST" style="display:inline;")
+                    button.btn.btn-sm.btn-danger(type="submit", onclick="return confirm('WARNING: You cannot delete a programme with active students or semesters. Delete anyway?')")
+                      i.fas.fa-trash
+
+  // Add Modal
+  #addModal.modal(style="display: none;")
+    .modal-content
+      .modal-header
+        h3 Add New Programme
+        span.close(onclick="closeModal('addModal')") &times;
+      .modal-body
+        form(action="/admin/programmes", method="POST")
+          .form-group
+            label Programme Code (e.g. CS101)
+            input(type="text", name="programme_code", required)
+          .form-group
+            label Programme Name
+            input(type="text", name="programme_name", required)
+          .form-group
+            label Duration (Years)
+            input(type="number", name="duration_years", min="1", max="10", required)
+          .flex.justify-end.mt-3.gap-2
+            button.btn.btn-secondary(type="button", onclick="closeModal('addModal')") Cancel
+            button.btn.btn-primary(type="submit") Add Programme
+
+  // Edit Modal
+  #editModal.modal(style="display: none;")
+    .modal-content
+      .modal-header
+        h3 Edit Programme
+        span.close(onclick="closeModal('editModal')") &times;
+      .modal-body
+        form#editForm(action="", method="POST")
+          .form-group
+            label Programme Code
+            input#editCode(type="text", name="programme_code", required)
+          .form-group
+            label Programme Name
+            input#editName(type="text", name="programme_name", required)
+          .form-group
+            label Duration (Years)
+            input#editDuration(type="number", name="duration_years", min="1", max="10", required)
+          .flex.justify-end.mt-3.gap-2
+            button.btn.btn-secondary(type="button", onclick="closeModal('editModal')") Cancel
+            button.btn.btn-primary(type="submit") Save Changes
+
+  script.
+    function editProg(prog) {
+      document.getElementById('editForm').action = `/admin/programmes/${prog.programme_id}`;
+      document.getElementById('editCode').value = prog.programme_code;
+      document.getElementById('editName').value = prog.programme_name;
+      document.getElementById('editDuration').value = prog.duration_years;
+      document.getElementById('editModal').style.display = 'flex';
+    }

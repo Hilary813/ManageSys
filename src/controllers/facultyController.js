@@ -3,17 +3,24 @@ const multer = require("multer");
 const csv = require("csv-parser");
 const fs = require("fs");
 
-const upload = multer({ dest: "uploads/" });
+// const upload = multer({ dest: "uploads/" });
 
 exports.dashboard = async (req, res) => {
   try {
-    const facultyId = req.session.user.user_id;
+    // Look up the real faculty_id (PK in faculty table) from the logged-in user_id
+    const [facRow] = await db.query('SELECT faculty_id FROM faculty WHERE user_id = ?', [req.session.user.user_id]);
+    if (!facRow.length) {
+      return res.render("faculty/dashboard", { user: req.session.user, subjects: [] });
+    }
+    const facultyId = facRow[0].faculty_id;
+
     const [subjects] = await db.query(`
-      SELECT sa.*, s.subject_name, sem.academic_year, sem.semester_number, sem.end_date,
-             COUNT(m.mark_id) as entered_marks, COUNT(e.enrollment_id) as total_students
+      SELECT sa.*, s.subject_name, sem.academic_year, sem.semester_number, sem.end_date, p.programme_name,
+             COUNT(DISTINCT m.mark_id) as entered_marks, COUNT(DISTINCT e.enrollment_id) as total_students
       FROM subject_allocations sa
       JOIN subjects s ON sa.subject_id = s.subject_id
       JOIN semesters sem ON sa.semester_id = sem.semester_id
+      JOIN programmes p ON sem.programme_id = p.programme_id
       LEFT JOIN enrollments e ON sa.subject_id = e.subject_id AND sa.semester_id = e.semester_id
       LEFT JOIN marks m ON e.enrollment_id = m.enrollment_id
       WHERE sa.faculty_id = ?
@@ -31,10 +38,11 @@ exports.resultEntryPage = async (req, res) => {
   const { allocation_id } = req.params;
   try {
     const [allocation] = await db.query(`
-      SELECT sa.*, s.subject_name, s.max_marks, sem.academic_year, sem.semester_number
+      SELECT sa.*, s.subject_name, s.max_marks, sem.academic_year, sem.semester_number, p.programme_name
       FROM subject_allocations sa
       JOIN subjects s ON sa.subject_id = s.subject_id
       JOIN semesters sem ON sa.semester_id = sem.semester_id
+      JOIN programmes p ON sem.programme_id = p.programme_id
       WHERE sa.allocation_id = ?
     `, [allocation_id]);
 
@@ -57,24 +65,44 @@ exports.resultEntryPage = async (req, res) => {
 exports.enterMarks = async (req, res) => {
   const { allocation_id } = req.params;
   const marks = req.body;
+  console.log(marks);
   try {
-    for (const [enrollment_id, mark] of Object.entries(marks)) {
+    // Look up the real faculty_id for the entered_by FK constraint
+    const [facRow] = await db.query('SELECT faculty_id FROM faculty WHERE user_id = ?', [req.session.user.user_id]);
+    const enteredBy = facRow.length ? facRow[0].faculty_id : null;
+
+    for (const [enrollment_id, value] of Object.entries(marks)) {
       if (enrollment_id.startsWith('mark_')) {
         const eid = enrollment_id.replace('mark_', '');
+        let mark = value;
+        if (Array.isArray(mark)) {
+          console.log("Array", mark);
+          mark = mark[0];
+        }
+        // Parse as number — form values come as strings; BETWEEN fails silently on strings
+        const markNum = parseFloat(mark);
+        if (isNaN(markNum)) continue; // skip blank or invalid entries
+
+        console.log([eid, markNum, enteredBy]);
         await db.query(`
           INSERT INTO marks (enrollment_id, marks_obtained, entered_by, entry_status)
           VALUES (?, ?, ?, 'SUBMITTED')
           ON DUPLICATE KEY UPDATE marks_obtained = ?, entry_status = 'SUBMITTED'
-        `, [eid, mark, req.session.user.user_id, mark]);
+        `, [eid, markNum, enteredBy, markNum]);
 
-        // Compute grade
-        const [grade] = await db.query("SELECT * FROM grade_scale WHERE ? BETWEEN min_score AND max_score ORDER BY min_score DESC LIMIT 1", [mark]);
+        // Compute grade from grade_scale using numeric value
+        const [grade] = await db.query(
+          "SELECT * FROM grade_scale WHERE ? BETWEEN min_score AND max_score ORDER BY min_score DESC LIMIT 1",
+          [markNum]
+        );
         if (grade.length) {
           await db.query(`
             INSERT INTO results (enrollment_id, marks, grade_letter, grade_point, result_status)
             VALUES (?, ?, ?, ?, 'PENDING')
             ON DUPLICATE KEY UPDATE marks = ?, grade_letter = ?, grade_point = ?
-          `, [eid, mark, grade[0].grade_letter, grade[0].grade_point, mark, grade[0].grade_letter, grade[0].grade_point]);
+          `, [eid, markNum, grade[0].grade_letter, grade[0].grade_point, markNum, grade[0].grade_letter, grade[0].grade_point]);
+        } else {
+          console.warn(`No grade_scale match for mark=${markNum}. Check grade_scale table has data.`);
         }
       }
     }

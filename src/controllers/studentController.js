@@ -32,11 +32,12 @@ exports.viewResults = async (req, res) => {
   try {
     const studentId = req.session.user.user_id;
     const [results] = await db.query(`
-      SELECT r.*, sub.subject_code, sub.subject_name, sub.max_marks, sub.credit_hours, sem.academic_year, sem.semester_number
+      SELECT r.*, sub.subject_code, sub.subject_name, sub.max_marks, sub.credit_hours, sem.academic_year, sem.semester_number, p.programme_name
       FROM results r
       JOIN enrollments e ON r.enrollment_id = e.enrollment_id
       JOIN subjects sub ON e.subject_id = sub.subject_id
       JOIN semesters sem ON e.semester_id = sem.semester_id
+      JOIN programmes p ON sem.programme_id = p.programme_id
       WHERE e.student_id = (SELECT student_id FROM students WHERE user_id = ?) AND sem.semester_id = ? AND r.result_status = 'PUBLISHED'
     `, [studentId, semester_id]);
 

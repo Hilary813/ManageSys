@@ -1,16 +1,25 @@
 const db = require("../config/db");
 
 exports.loginPage = (req, res) => {
-  res.render("login");
+  console.log(req.session.user);
+  if (!!req.session.user) {
+    res.redirect(`/${req.session.user.role.toLowerCase()}`);
+  } else {
+    res.render("login");
+  }
 };
 
 exports.login = async (req, res) => {
-  const { username, password } = req.body;
+  const { username,email, password } = req.body;
 
-  // Using password_hash based on db.sql schema
+    // Using password_hash based on db.sql schema
+  if(!username && !email){
+    return res.send("Invalid credentials");
+  }
+
   const [rows] = await db.query(
-    "SELECT * FROM users WHERE username=? AND password_hash=?",
-    [username, password]
+    "SELECT * FROM users WHERE username=? OR email=? OR email=? AND password_hash=?",
+    [username, email, username, password]
   );
 
   if (!rows.length) return res.send("Invalid credentials");

@@ -125,3 +125,16 @@ CREATE TABLE transcript_requests (
     requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status VARCHAR(20) DEFAULT 'GENERATED'
 );
+
+
+
+
+
+-- adding alter statement 
+
+ALTER TABLE results
+ADD UNIQUE (enrollment_id);
+
+
+ALTER TABLE marks
+ADD UNIQUE (enrollment_id);

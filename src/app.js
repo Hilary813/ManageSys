@@ -6,12 +6,17 @@ const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const facultyRoutes = require("./routes/facultyRoutes");
 const studentRoutes = require("./routes/studentRoutes");
-
+const path = require('path');
 const app = express();
 
 app.set("view engine", "pug");
-app.set("views", "./src/views");
-app.use(express.static("./src/public"));
+// app.set("views", "./src/views");
+// app.use(express.static("./src/public"));
+
+// app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(express.urlencoded({ extended: true }));
 
